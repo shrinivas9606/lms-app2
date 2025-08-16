@@ -1,0 +1,9 @@
+
+{
+  "crons": [
+    {
+      "path": "/api/cron/notify-upcoming?secret=your_super_secret_cron_key_here",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}
