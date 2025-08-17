@@ -19,6 +19,7 @@ export default async function AdminStudentsPage({
 }: {
   searchParams?: { [key: string]: string | undefined };
 }) {
+  // CORRECT: createClient() should not be awaited
   const supabase = await createClient();
   const query = searchParams?.q || '';
 
