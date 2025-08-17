@@ -55,25 +55,7 @@ export default function LoginPage() {
             providers={['google']}
             redirectTo={getURL()}
             theme="dark"
-            view="sign_up" // Default to the sign-up view
-            // THE FIX: Add a 'full_name' field to the sign-up form
-            additionalData={{
-              sign_up: {
-                full_name: '',
-              }
-            }}
-            localization={{
-              variables: {
-                sign_up: {
-                  additional_data_label: {
-                    full_name: 'Your Full Name'
-                  },
-                  additional_data_placeholder: {
-                    full_name: 'Enter your full name'
-                  }
-                }
-              }
-            }}
+            view="sign_up"
           />
           <div className="mt-4 text-center text-sm">
             By signing in, you agree to our{' '}
@@ -84,7 +66,20 @@ export default function LoginPage() {
         </div>
       </div>
       <div className="hidden bg-muted lg:block">
-        {/* ... (your marketing section) ... */}
+        <div className="h-full w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center p-12 text-white">
+            <div className="text-center">
+                <h2 className="text-4xl font-bold tracking-tighter">Unlock Your Potential</h2>
+                <p className="mt-4 max-w-md text-gray-300">
+                    Join thousands of learners and take your skills to the next level with our expert-led live courses.
+                </p>
+            </div>
+            <div className="mt-8 w-full max-w-md rounded-lg border bg-white/5 p-6 backdrop-blur-sm">
+                <p className="italic text-gray-200">
+                    "This platform transformed my career. The live interaction is a game-changer compared to pre-recorded videos."
+                </p>
+                <p className="mt-4 font-semibold text-right">- Alex Johnson, Senior Developer</p>
+            </div>
+        </div>
       </div>
     </div>
   );
