@@ -8,13 +8,10 @@ import { Calendar, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-type CourseDetailPageProps = {
-  params: { slug: string };
-};
-
-export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
+// THE FIX: Define the props type directly and simply in the function signature.
+export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
   const slug = decodeURIComponent(params.slug);
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: course, error: courseError } = await supabase
     .from('courses')
