@@ -5,14 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import BuyButton from '@/components/BuyButton';
 import { Calendar, Clock } from 'lucide-react';
+import type { PageProps } from '@/lib/types'; // 1. Import the new type
 
 export const dynamic = 'force-dynamic';
 
-// THE FIX: We are explicitly telling TypeScript to ignore the type of the props object
-// by using 'any'. This will bypass the Vercel build error.
-export default async function CourseDetailPage({ params }: any) {
+// 2. Define the specific props type for this page
+type CourseDetailPageProps = PageProps<{ slug: string }>;
+
+// 3. Use the new type in the function definition
+export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
   const slug = decodeURIComponent(params.slug);
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: course, error: courseError } = await supabase
     .from('courses')
