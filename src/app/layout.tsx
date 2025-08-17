@@ -40,7 +40,7 @@ function Header({ user, profile }: { user: User | null, profile: { avatar_url: s
   return (
     <header className="p-4 border-b bg-white sticky top-0 z-50">
       <nav className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="font-bold text-lg text-violet-700">My LMS</Link>
+        <Link href="/" className="font-bold text-lg text-violet-700">Suffix AI</Link>
         
         <div className="flex items-center gap-4">
           {user ? (
