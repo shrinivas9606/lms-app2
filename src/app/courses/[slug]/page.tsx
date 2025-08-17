@@ -1,5 +1,5 @@
 // src/app/courses/[slug]/page.tsx
-import { createClient } from '@/lib/supabase/server'; // Ensure this is the server client
+import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,19 +8,15 @@ import { Calendar, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-interface CourseDetailPageProps {
-  params: {
-    slug: string;
-  };
-}
+// This is the standard and correct way to define props for a Next.js page
+type CourseDetailPageProps = {
+  params: { slug: string };
+};
 
 export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
   const slug = decodeURIComponent(params.slug);
-  
-  // This is the line that causes the error if the .env variables are wrong.
   const supabase = await createClient();
 
-  // The rest of the page remains the same...
   const { data: course, error: courseError } = await supabase
     .from('courses')
     .select('*')
