@@ -1,64 +1,86 @@
-// src/app/dashboard/admin/page.tsx
+// src/app/dashboard/admin/attendance/[lectureId]/page.tsx
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { StatCard } from '@/components/StatCard';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Users, BookCopy, BarChart, PlusCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { PageProps } from '@/lib/types';
-type AttendancePageProps = PageProps<{ lectureId: string }>;
+import { AttendanceTable } from '@/components/AttendanceTable';
+import { markAttendance } from '@/app/actions';
+import { notFound } from 'next/navigation';
 
-export default async function AttendancePage({ params }: AttendancePageProps) {
+export default async function AttendancePage({ params }: any) {
+  const { lectureId } = params;
   const supabase = await createClient();
 
+  // 1. Fetch current user and check if they are an admin
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-  if (profile?.role !== 'admin') redirect('/dashboard/student');
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
 
-  // Fetch stats in parallel for performance
-  const [
-    { count: studentCount },
-    { count: courseCount },
-    { data: payments, error: paymentsError }
-  ] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
-    supabase.from('courses').select('*', { count: 'exact', head: true }),
-    supabase.from('payments').select('amount_inr').eq('status', 'PAID')
-  ]);
+  if (profile?.role !== 'admin') {
+    return <p className="p-8">You do not have permission to view this page.</p>;
+  }
 
-  const totalRevenue = payments ? payments.reduce((acc, p) => acc + p.amount_inr, 0) : 0;
+  // 2. Fetch lecture details to get the batch_id
+  const { data: lecture, error: lectureError } = await supabase
+    .from('lectures')
+    .select(`
+      title,
+      scheduled_at,
+      batch_id,
+      batches ( name, courses (title) )
+    `)
+    .eq('id', lectureId)
+    .single();
+
+  if (lectureError || !lecture) {
+    notFound();
+  }
+
+  // 3. Fetch all students with an ACTIVE enrollment in this lecture's batch
+  const { data: students, error: studentsError } = await supabase
+    .from('enrollments')
+    .select(`
+      profiles ( id, full_name )
+    `)
+    .eq('batch_id', lecture.batch_id)
+    .eq('status', 'ACTIVE');
+
+  if (studentsError || !students) {
+    return <p className="p-8">Could not fetch students for this batch.</p>;
+  }
+
+  // 4. Fetch existing attendance records for this lecture
+  const { data: existingAttendance } = await supabase
+    .from('attendance')
+    .select('user_id, status')
+    .eq('lecture_id', lectureId);
+
+  // Format student list for the client component
+  const studentList = students.map(s => ({
+    id: s.profiles!.id,
+    name: s.profiles!.full_name || 'No name provided',
+  }));
 
   return (
-    <main className="container mx-auto p-4 md:p-8 space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Overview of your learning platform.</p>
+    <main className="p-4 md:p-8">
+      <div className="mb-6">
+        <p className="text-muted-foreground">{lecture.batches?.courses?.title} - {lecture.batches?.name}</p>
+        <h1 className="text-3xl font-bold">Mark Attendance</h1>
+        <h2 className="text-xl text-muted-foreground">{lecture.title}</h2>
+        <p className="text-sm text-muted-foreground">
+          {new Date(lecture.scheduled_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+        </p>
       </div>
-
-      {/* Quick Actions */}
-      <div className="flex gap-4">
-        <Button asChild>
-          <Link href="/dashboard/admin/courses/new"><PlusCircle className="mr-2 h-4 w-4" /> New Course</Link>
-        </Button>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString('en-IN')}`} icon={BarChart} />
-        <StatCard title="Total Students" value={studentCount || 0} icon={Users} />
-        <StatCard title="Active Courses" value={courseCount || 0} icon={BookCopy} />
-      </div>
-
-      {/* Placeholder for more components */}
-      <Card>
-        <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">A table of recent enrollments or payments will be displayed here.</p>
-        </CardContent>
-      </Card>
+      
+      <AttendanceTable
+        students={studentList}
+        lectureId={lectureId}
+        existingAttendance={existingAttendance || []}
+        markAttendanceAction={markAttendance}
+      />
     </main>
   );
 }
