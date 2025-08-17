@@ -15,6 +15,7 @@ export default async function StudentDashboard({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  // CORRECTED: createClient() is not asynchronous
   const supabase = await createClient();
 
   const { data: { session } } = await supabase.auth.getSession();
@@ -22,7 +23,6 @@ export default async function StudentDashboard({
 
   const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', session.user.id).single();
 
-  // THE FIX: Query the new, simple 'user_enrollment_details' view
   const { data: enrollments, error: enrollmentsError } = await supabase
     .from('user_enrollment_details')
     .select('batch_id, batch_name, course_title')
@@ -41,7 +41,7 @@ export default async function StudentDashboard({
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
             <h1 className="text-2xl font-bold mb-4">Welcome, {profile?.full_name || 'Student'}!</h1>
             <p className="text-muted-foreground max-w-md">You haven't enrolled in any courses yet. Explore our catalog and start your learning journey today.</p>
-            <Button asChild className="mt-6">
+            <Button asChild className="mt-6 bg-violet-600 hover:bg-violet-700 text-white">
               <Link href="/courses">Browse Courses <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
         </div>
@@ -68,57 +68,88 @@ export default async function StudentDashboard({
   const nextLecture = upcomingLectures?.[0];
 
   return (
-    <div className="space-y-8 p-4 md:p-0">
-      {searchParams?.status === 'processing' && <EnrollmentRefresher />}
-      
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {profile?.full_name || 'Student'}!</p>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Enrolled Courses" value={enrolledCount} icon={BookOpen} />
-        <Link href="/dashboard/student/attendance">
-          <StatCard title="Sessions Attended" value={attendanceCount || 0} icon={CheckCircle} />
-        </Link>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          {/* ... Next Live Session Card ... */}
+    <div className="bg-gray-50 min-h-screen">
+      <main className="container mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+        {searchParams?.status === 'processing' && <EnrollmentRefresher />}
+        
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-500">Welcome back, {profile?.full_name || 'Student'}!</p>
+          </div>
         </div>
 
-        <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Courses</CardTitle>
-            </CardHeader>
-            <CardContent className="max-h-[400px] overflow-y-auto">
-              <ul className="space-y-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard title="Enrolled Courses" value={enrolledCount} icon={BookOpen} />
+          <Link href="/dashboard/student/attendance">
+            <StatCard title="Sessions Attended" value={attendanceCount || 0} icon={CheckCircle} />
+          </Link>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <Card className="shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-gray-800">
+                  <Clock className="h-5 w-5 text-violet-600" />
+                  Next Live Session
+                </CardTitle>
+                <CardDescription>Your next class will appear here. The video player will be available when the session starts.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {nextLecture ? (
+                  <div className="space-y-4">
+                    <div>
+                      <Badge variant="outline" className="border-violet-300 text-violet-700">{new Date(nextLecture.scheduled_at).toLocaleDateString('en-IN', { weekday: 'long' })}</Badge>
+                      <h3 className="text-2xl font-semibold mt-2 text-gray-900">{nextLecture.title}</h3>
+                      <p className="text-gray-500">
+                        {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
+                      </p>
+                    </div>
+                    {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
+                      <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
+                    ) : (
+                      <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-gray-50">
+                          <p className="text-gray-500">Session has not started yet.</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-gray-50">
+                      <p className="text-gray-500">No upcoming sessions. Enjoy your break!</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="lg:col-span-1">
+            <Card className="shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <CardTitle className="text-gray-800">My Courses</CardTitle>
+              </CardHeader>
+              <CardContent className="max-h-[400px] overflow-y-auto p-4 space-y-3">
                 {(enrollments ?? []).map((enrollment) => (
                   <Link href={`/dashboard/student/batches/${enrollment.batch_id}`} key={enrollment.batch_id}>
-                    <li className="flex items-center justify-between text-sm p-3 bg-muted/50 rounded-md hover:bg-muted transition-colors">
+                    <div className="flex items-center justify-between text-sm p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                       <div>
-                        {/* THE FIX: Use the new, direct field names from the view */}
-                        <p className="font-semibold">{enrollment.course_title}</p>
-                        <p className="text-xs text-muted-foreground">{enrollment.batch_name}</p>
+                        <p className="font-semibold text-gray-800">{enrollment.course_title}</p>
+                        <p className="text-xs text-gray-500">{enrollment.batch_name}</p>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                    </li>
+                      <ArrowRight className="h-4 w-4 text-gray-400" />
+                    </div>
                   </Link>
                 ))}
-              </ul>
-            </CardContent>
-            <CardFooter>
-                <Button variant="outline" className="w-full" asChild>
-                    <Link href="/courses">Browse More Courses</Link>
-                </Button>
-            </CardFooter>
-          </Card>
+              </CardContent>
+              <CardFooter>
+                  <Button variant="outline" className="w-full" asChild>
+                      <Link href="/courses">Browse More Courses</Link>
+                  </Button>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
