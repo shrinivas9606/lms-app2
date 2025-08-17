@@ -74,7 +74,9 @@ export default async function StudentDashboard({
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Enrolled Courses" value={enrolledCount || 0} icon={BookOpen} />
-        <StatCard title="Sessions Attended" value={attendanceCount || 0} icon={CheckCircle} />
+        <Link href="/dashboard/student/attendance">
+          <StatCard title="Sessions Attended" value={attendanceCount || 0} icon={CheckCircle} />
+        </Link>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-3">
