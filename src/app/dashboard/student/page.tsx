@@ -15,7 +15,7 @@ export default async function StudentDashboard({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/login');
@@ -58,7 +58,7 @@ export default async function StudentDashboard({
     );
   }
 
-  const batchIds = enrollments.map((e: any) => e.batch_id);
+  const batchIds = (enrollments ?? []).map((e: any) => e.batch_id);
 
   const { data: upcomingLectures } = await supabase
     .from('lectures')
@@ -114,8 +114,8 @@ export default async function StudentDashboard({
                       {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
                     </p>
                   </div>
-                  {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.platform && nextLecture.stream_url ? (
-                    <LivePlayer platform={nextLecture.batches.platform} streamUrl={nextLecture.stream_url} />
+                  {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
+                    <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
                   ) : (
                     <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-muted/50">
                         <p className="text-muted-foreground">Session has not started yet.</p>
@@ -138,12 +138,12 @@ export default async function StudentDashboard({
             </CardHeader>
             <CardContent className="max-h-[400px] overflow-y-auto">
               <ul className="space-y-3">
-                {enrollments.map((enrollment) => (
+                {(enrollments ?? []).map((enrollment) => (
                   <Link href={`/dashboard/student/batches/${enrollment.batch_id}`} key={enrollment.batch_id}>
                     <li className="flex items-center justify-between text-sm p-3 bg-muted/50 rounded-md hover:bg-muted transition-colors">
                       <div>
-                        <p className="font-semibold">{enrollment.batches?.courses?.title || 'Course Title Unavailable'}</p>
-                        <p className="text-xs text-muted-foreground">{enrollment.batches?.name || 'Batch Name Unavailable'}</p>
+                        <p className="font-semibold">{enrollment.batches?.[0]?.courses?.[0]?.title || 'Course Title Unavailable'}</p>
+                        <p className="text-xs text-muted-foreground">{enrollment.batches?.[0]?.name || 'Batch Name Unavailable'}</p>
                       </div>
                       <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </li>
