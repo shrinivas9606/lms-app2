@@ -43,7 +43,7 @@ export default async function StudentDashboard({
     );
   }
 
-  const batchIds = enrollments.map((e) => e.batch_id);
+  const batchIds = enrollments.map((e: any) => e.batch_id);
 
   const { data: upcomingLectures } = await supabase
     .from('lectures')
@@ -87,7 +87,7 @@ export default async function StudentDashboard({
                 <Clock className="h-5 w-5 text-primary" />
                 Next Live Session
               </CardTitle>
-              <CardDescription>This is your next class. The join link will appear when it's time.</CardDescription>
+              <CardDescription>This is your next class. The video player will appear here when it's time.</CardDescription>
             </CardHeader>
             <CardContent>
               {nextLecture ? (
@@ -99,7 +99,6 @@ export default async function StudentDashboard({
                       {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
                     </p>
                   </div>
-                  {/* THE FIX: Use optional chaining to safely access nested properties */}
                   {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
                     <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
                   ) : (
@@ -125,20 +124,21 @@ export default async function StudentDashboard({
             <CardContent className="max-h-[400px] overflow-y-auto">
               <ul className="space-y-3">
                 {enrollments.map((enrollment) => (
-                  <li key={enrollment.batch_id} className="flex items-center justify-between text-sm p-3 bg-muted/50 rounded-md hover:bg-muted transition-colors">
-                    <div>
-                      {/* THE FIX: Use optional chaining to safely access nested properties */}
-                      <p className="font-semibold">{enrollment.batches?.[0]?.courses?.[0]?.title || 'Course Title Missing'}</p>
-                      <p className="text-xs text-muted-foreground">{enrollment.batches?.[0]?.name || 'Batch Name Missing'}</p>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </li>
+                  <Link href={`/dashboard/student/batches/${enrollment.batch_id}`} key={enrollment.batch_id}>
+                    <li className="flex items-center justify-between text-sm p-3 bg-muted/50 rounded-md hover:bg-muted transition-colors">
+                      <div>
+                        <p className="font-semibold">{enrollment.batches?.[0]?.courses?.[0]?.title || 'Course Title'}</p>
+                        <p className="text-xs text-muted-foreground">{enrollment.batches?.[0]?.name || 'Batch Name'}</p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                    </li>
+                  </Link>
                 ))}
               </ul>
             </CardContent>
             <CardFooter>
                 <Button variant="outline" className="w-full" asChild>
-                    <Link href="/dashboard/student/courses">View All Courses</Link>
+                    <Link href="/courses">Browse More Courses</Link>
                 </Button>
             </CardFooter>
           </Card>
