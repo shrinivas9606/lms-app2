@@ -8,7 +8,6 @@ import { Calendar, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-// This is the standard and correct way to define props for a Next.js page
 type CourseDetailPageProps = {
   params: { slug: string };
 };
