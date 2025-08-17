@@ -15,20 +15,35 @@ export default async function StudentDashboard({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/login');
 
   const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', session.user.id).single();
 
-  const { data: enrollments, count: enrolledCount } = await supabase
+  // A more robust query to fetch enrollment data
+  const { data: enrollments, error: enrollmentsError } = await supabase
     .from('enrollments')
-    .select('batch_id, batches(name, courses(title))', { count: 'exact' })
+    .select(`
+      batch_id,
+      batches (
+        name,
+        courses (
+          title
+        )
+      )
+    `)
     .eq('user_id', session.user.id)
     .eq('status', 'ACTIVE');
 
-  if (!enrollments || enrollments.length === 0) {
+  if (enrollmentsError) {
+    console.error("Error fetching enrollments:", enrollmentsError);
+  }
+
+  const enrolledCount = enrollments?.length || 0;
+
+  if (enrolledCount === 0) {
     return (
       <main className="container mx-auto p-4 md:p-8 text-center">
         {searchParams?.status === 'processing' && <EnrollmentRefresher />}
@@ -73,7 +88,7 @@ export default async function StudentDashboard({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Enrolled Courses" value={enrolledCount || 0} icon={BookOpen} />
+        <StatCard title="Enrolled Courses" value={enrolledCount} icon={BookOpen} />
         <Link href="/dashboard/student/attendance">
           <StatCard title="Sessions Attended" value={attendanceCount || 0} icon={CheckCircle} />
         </Link>
@@ -99,8 +114,8 @@ export default async function StudentDashboard({
                       {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
                     </p>
                   </div>
-                  {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
-                    <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
+                  {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.platform && nextLecture.stream_url ? (
+                    <LivePlayer platform={nextLecture.batches.platform} streamUrl={nextLecture.stream_url} />
                   ) : (
                     <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-muted/50">
                         <p className="text-muted-foreground">Session has not started yet.</p>
@@ -127,8 +142,8 @@ export default async function StudentDashboard({
                   <Link href={`/dashboard/student/batches/${enrollment.batch_id}`} key={enrollment.batch_id}>
                     <li className="flex items-center justify-between text-sm p-3 bg-muted/50 rounded-md hover:bg-muted transition-colors">
                       <div>
-                        <p className="font-semibold">{enrollment.batches?.[0]?.courses?.[0]?.title || 'Course Title'}</p>
-                        <p className="text-xs text-muted-foreground">{enrollment.batches?.[0]?.name || 'Batch Name'}</p>
+                        <p className="font-semibold">{enrollment.batches?.courses?.title || 'Course Title Unavailable'}</p>
+                        <p className="text-xs text-muted-foreground">{enrollment.batches?.name || 'Batch Name Unavailable'}</p>
                       </div>
                       <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </li>
