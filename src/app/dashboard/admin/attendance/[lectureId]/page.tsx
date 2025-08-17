@@ -60,14 +60,16 @@ export default async function AttendancePage({ params }: any) {
 
   // Format student list for the client component
   const studentList = students.map(s => ({
-    id: s.profiles!.id,
-    name: s.profiles!.full_name || 'No name provided',
+    id: (s.profiles as { id?: any; full_name?: any })?.id,
+    name: (s.profiles as { id?: any; full_name?: any })?.full_name || 'No name provided',
   }));
 
   return (
     <main className="p-4 md:p-8">
       <div className="mb-6">
-        <p className="text-muted-foreground">{lecture.batches?.courses?.title} - {lecture.batches?.name}</p>
+        <p className="text-muted-foreground">
+          {lecture.batches?.[0]?.courses?.[0]?.title} - {lecture.batches?.[0]?.name}
+        </p>
         <h1 className="text-3xl font-bold">Mark Attendance</h1>
         <h2 className="text-xl text-muted-foreground">{lecture.title}</h2>
         <p className="text-sm text-muted-foreground">
