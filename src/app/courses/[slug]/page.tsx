@@ -8,7 +8,7 @@ import { Calendar, Clock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-// THE FIX: Define the props type directly and simply in the function signature.
+// This is the simplest, most robust way to define props for a Next.js page.
 export default async function CourseDetailPage({ params }: { params: { slug: string } }) {
   const slug = decodeURIComponent(params.slug);
   const supabase = createClient();
