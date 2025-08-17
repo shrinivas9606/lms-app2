@@ -10,7 +10,7 @@ interface EditCoursePageProps {
   };
 }
 
-export default async function EditCoursePage({ params }: EditCoursePageProps) {
+export default async function EditCoursePage({ params }: any) {
   const { courseId } = params;
   const supabase = await createClient();
 

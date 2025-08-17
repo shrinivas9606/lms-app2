@@ -11,7 +11,7 @@ interface EditBatchPageProps {
   };
 }
 
-export default async function EditBatchPage({ params }: EditBatchPageProps) {
+export default async function EditBatchPage({ params }: any) {
   const { courseId, batchId } = params;
   const supabase = await createClient();
 

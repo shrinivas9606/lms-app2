@@ -21,7 +21,7 @@ interface LecturesPageProps {
   };
 }
 
-export default async function AdminLecturesPage({ params }: LecturesPageProps) {
+export default async function AdminLecturesPage({ params }: any) {
   const { batchId } = params;
   const supabase = await createClient();
 

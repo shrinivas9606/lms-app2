@@ -22,7 +22,7 @@ interface BatchesPageProps {
   };
 }
 
-export default async function AdminBatchesPage({ params }: BatchesPageProps) {
+export default async function AdminBatchesPage({ params }: any) {
   const { courseId } = params;
   const supabase = await createClient();
 

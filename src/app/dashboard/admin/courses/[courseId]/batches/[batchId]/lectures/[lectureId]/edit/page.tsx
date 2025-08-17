@@ -11,7 +11,7 @@ interface EditLecturePageProps {
   };
 }
 
-export default async function EditLecturePage({ params }: EditLecturePageProps) {
+export default async function EditLecturePage({ params }: any) {
   const { batchId, lectureId } = params;
   const supabase = await createClient();
 
