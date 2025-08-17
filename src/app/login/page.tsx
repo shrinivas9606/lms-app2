@@ -56,6 +56,28 @@ export default function LoginPage() {
             redirectTo={getURL()}
             theme="dark"
             view="sign_up"
+            // THE FIX: Explicitly define all fields for the sign-up view
+            fields={{
+              sign_up: {
+                email: {
+                  label: 'Email Address',
+                  placeholder: 'Enter your email address',
+                },
+                password: {
+                  label: 'Password',
+                  placeholder: 'Create a strong password',
+                },
+                additionalFields: [
+                  {
+                    type: 'text',
+                    name: 'full_name',
+                    label: 'Your Full Name',
+                    placeholder: 'Enter your full name',
+                    required: true,
+                  },
+                ],
+              },
+            }}
           />
           <div className="mt-4 text-center text-sm">
             By signing in, you agree to our{' '}
