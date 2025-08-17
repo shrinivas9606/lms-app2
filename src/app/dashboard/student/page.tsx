@@ -8,15 +8,14 @@ import { Clock, BookOpen, CheckCircle, ArrowRight } from 'lucide-react';
 import LivePlayer from '@/components/LivePlayer';
 import { StatCard } from '@/components/StatCard';
 import { Badge } from '@/components/ui/badge';
-import EnrollmentRefresher from '@/components/EnrollmentRefresher'; // Import the new component
+import EnrollmentRefresher from '@/components/EnrollmentRefresher';
 
-// The page now accepts searchParams as a prop
 export default async function StudentDashboard({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/login');
@@ -32,7 +31,6 @@ export default async function StudentDashboard({
   if (!enrollments || enrollments.length === 0) {
     return (
       <main className="container mx-auto p-4 md:p-8 text-center">
-        {/* Conditionally render the refresher component even if no courses are initially found */}
         {searchParams?.status === 'processing' && <EnrollmentRefresher />}
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
             <h1 className="text-2xl font-bold mb-4">Welcome, {profile?.full_name || 'Student'}!</h1>
@@ -45,7 +43,7 @@ export default async function StudentDashboard({
     );
   }
 
-  const batchIds = enrollments.map((e: any) => e.batch_id);
+  const batchIds = enrollments.map((e) => e.batch_id);
 
   const { data: upcomingLectures } = await supabase
     .from('lectures')
@@ -65,7 +63,6 @@ export default async function StudentDashboard({
 
   return (
     <div className="space-y-8 p-4 md:p-0">
-       {/* Conditionally render the refresher component */}
       {searchParams?.status === 'processing' && <EnrollmentRefresher />}
       
       <div className="flex items-center justify-between">
@@ -100,8 +97,9 @@ export default async function StudentDashboard({
                       {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
                     </p>
                   </div>
-                  {new Date(nextLecture.scheduled_at) <= new Date() ? (
-                    <LivePlayer platform={nextLecture.batches!.platform} streamUrl={nextLecture.stream_url!} />
+                  {/* THE FIX: Use optional chaining to safely access nested properties */}
+                  {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
+                    <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
                   ) : (
                     <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-muted/50">
                         <p className="text-muted-foreground">Session has not started yet.</p>
@@ -124,11 +122,12 @@ export default async function StudentDashboard({
             </CardHeader>
             <CardContent className="max-h-[400px] overflow-y-auto">
               <ul className="space-y-3">
-                {enrollments.map((enrollment: any) => (
+                {enrollments.map((enrollment) => (
                   <li key={enrollment.batch_id} className="flex items-center justify-between text-sm p-3 bg-muted/50 rounded-md hover:bg-muted transition-colors">
                     <div>
-                      <p className="font-semibold">{enrollment.batches.courses.title}</p>
-                      <p className="text-xs text-muted-foreground">{enrollment.batches.name}</p>
+                      {/* THE FIX: Use optional chaining to safely access nested properties */}
+                      <p className="font-semibold">{enrollment.batches?.[0]?.courses?.[0]?.title || 'Course Title Missing'}</p>
+                      <p className="text-xs text-muted-foreground">{enrollment.batches?.[0]?.name || 'Batch Name Missing'}</p>
                     </div>
                     <ArrowRight className="h-4 w-4 text-muted-foreground" />
                   </li>
