@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Clock, Video, BookOpen, CheckCircle, ArrowRight } from 'lucide-react';
+import { Clock, BookOpen, CheckCircle, ArrowRight } from 'lucide-react';
 import LivePlayer from '@/components/LivePlayer';
 import { StatCard } from '@/components/StatCard';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,7 @@ export default async function StudentDashboard({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/login');
@@ -45,7 +45,7 @@ export default async function StudentDashboard({
     );
   }
 
-  const batchIds = enrollments.map((e) => e.batch_id);
+  const batchIds = enrollments.map((e: any) => e.batch_id);
 
   const { data: upcomingLectures } = await supabase
     .from('lectures')
@@ -101,7 +101,7 @@ export default async function StudentDashboard({
                     </p>
                   </div>
                   {new Date(nextLecture.scheduled_at) <= new Date() ? (
-                    <LivePlayer platform={nextLecture.batches && nextLecture.batches[0]?.platform} streamUrl={nextLecture.stream_url!} />
+                    <LivePlayer platform={nextLecture.batches!.platform} streamUrl={nextLecture.stream_url!} />
                   ) : (
                     <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-muted/50">
                         <p className="text-muted-foreground">Session has not started yet.</p>

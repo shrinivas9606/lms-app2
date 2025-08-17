@@ -12,13 +12,14 @@ export default function EnrollmentRefresher() {
     // Show a toast to inform the user
     const toastId = toast.loading("Processing Enrollment...", {
       description: "Finalizing your details. Your dashboard will refresh shortly.",
+      duration: 10000, // Keep the toast visible for up to 10 seconds
     });
 
     // Set a timeout to refresh the page after 5 seconds
     const timer = setTimeout(() => {
       router.refresh();
-      toast.dismiss(toastId); // Dismiss the loading toast
-    }, 5000); // Increased delay to 5 seconds
+      toast.dismiss(toastId); // Dismiss the loading toast once refresh is triggered
+    }, 5000); // 5-second delay to allow webhook to complete
 
     // Cleanup the timer if the component unmounts
     return () => clearTimeout(timer);
