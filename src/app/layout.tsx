@@ -31,7 +31,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   // CORRECTED: createClient() is not asynchronous
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // Fetch the user's profile to get their avatar URL
