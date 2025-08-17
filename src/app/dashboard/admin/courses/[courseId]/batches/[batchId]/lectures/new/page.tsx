@@ -3,8 +3,10 @@ import { LectureForm } from '@/components/LectureForm';
 import { createLecture } from '@/app/actions';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
+import type { PageProps } from '@/lib/types';
+type NewLecturePageProps = PageProps<{ batchId: string }>;
 
-export default async function NewLecturePage({ params }: any ) {
+export default async function NewLecturePage({ params }: NewLecturePageProps) {
   const { batchId } = params;
   const supabase = await createClient();
   const { data: batch } = await supabase

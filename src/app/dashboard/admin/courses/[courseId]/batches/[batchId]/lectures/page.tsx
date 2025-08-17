@@ -14,14 +14,16 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DeleteLectureButton } from '@/components/DeleteLectureButton';
+import type { PageProps } from '@/lib/types';
+type AdminLecturesPageProps = PageProps<{ batchId: string }>;
 
-interface LecturesPageProps {
-  params: {
-    batchId: string;
-  };
-}
+// interface LecturesPageProps {
+//   params: {
+//     batchId: string;
+//   };
+// }
 
-export default async function AdminLecturesPage({ params }: any) {
+export default async function AdminLecturesPage({ params }: AdminLecturesPageProps) {
   const { batchId } = params;
   const supabase = await createClient();
 

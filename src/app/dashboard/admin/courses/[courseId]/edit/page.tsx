@@ -3,14 +3,16 @@ import { createClient } from '@/lib/supabase/server';
 import { CourseForm } from '@/components/CourseForm';
 import { updateCourse } from '@/app/actions';
 import { notFound } from 'next/navigation';
+import type { PageProps } from '@/lib/types';
+type EditCoursePageProps = PageProps<{ courseId: string }>;
 
-interface EditCoursePageProps {
-  params: {
-    courseId: string;
-  };
-}
+// interface EditCoursePageProps {
+//   params: {
+//     courseId: string;
+//   };
+// }
 
-export default async function EditCoursePage({ params }: any) {
+export default async function EditCoursePage({ params }: EditCoursePageProps) {
   const { courseId } = params;
   const supabase = await createClient();
 

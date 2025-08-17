@@ -3,15 +3,17 @@ import { createClient } from '@/lib/supabase/server';
 import { BatchForm } from '@/components/BatchForm';
 import { updateBatch } from '@/app/actions';
 import { notFound } from 'next/navigation';
+import type { PageProps } from '@/lib/types';
+type EditBatchPageProps = PageProps<{ courseId: string, batchId: string }>;
 
-interface EditBatchPageProps {
-  params: {
-    courseId: string;
-    batchId: string;
-  };
-}
+// interface EditBatchPageProps {
+//   params: {
+//     courseId: string;
+//     batchId: string;
+//   };
+// }
 
-export default async function EditBatchPage({ params }: any) {
+export default async function EditBatchPage({ params }: EditBatchPageProps) {
   const { courseId, batchId } = params;
   const supabase = await createClient();
 

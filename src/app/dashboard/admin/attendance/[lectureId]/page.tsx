@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Users, BookCopy, BarChart, PlusCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type { PageProps } from '@/lib/types';
+type AttendancePageProps = PageProps<{ lectureId: string }>;
 
-export default async function AdminDashboard() {
+export default async function AttendancePage({ params }: AttendancePageProps) {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();

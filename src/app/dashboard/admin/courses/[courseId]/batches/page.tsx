@@ -15,14 +15,15 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { DeleteBatchButton } from '@/components/DeleteBatchButton';
+import type { PageProps } from '@/lib/types';
+type AdminBatchesPageProps = PageProps<{ courseId: string }>;
+// interface BatchesPageProps {
+//   params: {
+//     courseId: string;
+//   };
+// }
 
-interface BatchesPageProps {
-  params: {
-    courseId: string;
-  };
-}
-
-export default async function AdminBatchesPage({ params }: any) {
+export default async function AdminBatchesPage({ params }: AdminBatchesPageProps) {
   const { courseId } = params;
   const supabase = await createClient();
 

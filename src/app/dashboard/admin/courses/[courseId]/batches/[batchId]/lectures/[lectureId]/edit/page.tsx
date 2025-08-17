@@ -3,15 +3,17 @@ import { createClient } from '@/lib/supabase/server';
 import { LectureForm } from '@/components/LectureForm';
 import { updateLecture } from '@/app/actions';
 import { notFound } from 'next/navigation';
+import type { PageProps } from '@/lib/types';
+type EditLecturePageProps = PageProps<{ batchId: string, lectureId: string }>;
 
-interface EditLecturePageProps {
-  params: {
-    batchId: string;
-    lectureId: string;
-  };
-}
+// interface EditLecturePageProps {
+//   params: {
+//     batchId: string;
+//     lectureId: string;
+//   };
+// }
 
-export default async function EditLecturePage({ params }: any) {
+export default async function EditLecturePage({ params }: EditLecturePageProps) {
   const { batchId, lectureId } = params;
   const supabase = await createClient();
 
