@@ -4,7 +4,7 @@ import { createBatch } from '@/app/actions';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 
-export default async function NewBatchPage({ params }: { params: { courseId: string } }) {
+export default async function NewBatchPage({ params }: any) {
   const { courseId } = params;
   const supabase = await createClient();
   const { data: course } = await supabase.from('courses').select('title').eq('id', courseId).single();

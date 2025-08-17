@@ -4,7 +4,7 @@ import { createLecture } from '@/app/actions';
 import { createClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 
-export default async function NewLecturePage({ params }: { params: { batchId: string } }) {
+export default async function NewLecturePage({ params }: any ) {
   const { batchId } = params;
   const supabase = await createClient();
   const { data: batch } = await supabase
