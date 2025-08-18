@@ -30,24 +30,15 @@ export default async function AdminDashboard() {
     { count: studentCount },
     { count: courseCount },
     { data: payments },
+    // THE FIX: Query the new, simple 'admin_recent_enrollments_view'
     { data: recentEnrollments, error: enrollmentsError }
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
     supabase.from('courses').select('*', { count: 'exact', head: true }),
     supabase.from('payments').select('amount_inr').eq('status', 'PAID'),
-    // THE NEW QUERY: Fetch the 5 most recent enrollments and their related data
     supabase
-      .from('enrollments')
-      .select(`
-        id,
-        enrolled_at,
-        profiles!enrollments_user_id_fkey ( full_name, avatar_url ),
-        batches (
-          name,
-          courses ( title )
-        )
-      `)
-      .eq('status', 'ACTIVE')
+      .from('admin_recent_enrollments_view')
+      .select('*')
       .order('enrolled_at', { ascending: false })
       .limit(5)
   ]);
@@ -80,7 +71,6 @@ export default async function AdminDashboard() {
         <StatCard title="Active Courses" value={courseCount || 0} icon={BookCopy} />
       </div>
 
-      {/* THE UPDATED SECTION: Display the recent enrollments in a table */}
       <Card>
         <CardHeader>
           <CardTitle>Recent Enrollments</CardTitle>
@@ -102,15 +92,16 @@ export default async function AdminDashboard() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
-                          <AvatarImage src={enrollment.profiles?.[0]?.avatar_url ?? undefined} alt="Avatar" />
-                          <AvatarFallback>{enrollment.profiles?.[0]?.full_name?.charAt(0) ?? 'U'}</AvatarFallback>
+                          {/* THE FIX: Use the new, direct field names from the view */}
+                          <AvatarImage src={enrollment.avatar_url ?? undefined} alt="Avatar" />
+                          <AvatarFallback>{enrollment.full_name?.charAt(0) ?? 'U'}</AvatarFallback>
                         </Avatar>
-                        <div className="font-medium">{enrollment.profiles?.[0]?.full_name || 'N/A'}</div>
+                        <div className="font-medium">{enrollment.full_name || 'N/A'}</div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div>{enrollment.batches?.[0]?.courses?.[0]?.title || 'N/A'}</div>
-                      <div className="text-sm text-muted-foreground">{enrollment.batches?.[0]?.name || 'N/A'}</div>
+                      <div>{enrollment.course_title || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{enrollment.batch_name || 'N/A'}</div>
                     </TableCell>
                     <TableCell className="text-right">
                       {new Date(enrollment.enrolled_at!).toLocaleDateString('en-IN', {
