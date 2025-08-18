@@ -25,12 +25,10 @@ export default async function AdminDashboard() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
   if (profile?.role !== 'admin') redirect('/dashboard/student');
 
-  // Fetch stats and recent enrollments in parallel
   const [
     { count: studentCount },
     { count: courseCount },
     { data: payments },
-    // THE FIX: Query the new, simple 'admin_recent_enrollments_view'
     { data: recentEnrollments, error: enrollmentsError }
   ] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
@@ -66,9 +64,16 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString('en-IN')}`} icon={BarChart} />
-        <StatCard title="Total Students" value={studentCount || 0} icon={Users} />
-        <StatCard title="Active Courses" value={courseCount || 0} icon={BookCopy} />
+        {/* THE CHANGE: Wrap cards in Link components */}
+        <Link href="/dashboard/admin/reports/revenue">
+          <StatCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString('en-IN')}`} icon={BarChart} />
+        </Link>
+        <Link href="/dashboard/admin/reports/students">
+          <StatCard title="Total Students" value={studentCount || 0} icon={Users} />
+        </Link>
+        <Link href="/dashboard/admin/courses">
+          <StatCard title="Active Courses" value={courseCount || 0} icon={BookCopy} />
+        </Link>
       </div>
 
       <Card>
@@ -92,7 +97,6 @@ export default async function AdminDashboard() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
-                          {/* THE FIX: Use the new, direct field names from the view */}
                           <AvatarImage src={enrollment.avatar_url ?? undefined} alt="Avatar" />
                           <AvatarFallback>{enrollment.full_name?.charAt(0) ?? 'U'}</AvatarFallback>
                         </Avatar>
