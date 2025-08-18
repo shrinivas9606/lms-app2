@@ -56,17 +56,9 @@ export default function LoginPage() {
             redirectTo={getURL()}
             theme="dark"
             view="sign_up"
-            // THE FIX: Explicitly define all fields for the sign-up view
+            // THE FIX: This adds the 'full_name' field to the sign-up form
             fields={{
               sign_up: {
-                email: {
-                  label: 'Email Address',
-                  placeholder: 'Enter your email address',
-                },
-                password: {
-                  label: 'Password',
-                  placeholder: 'Create a strong password',
-                },
                 additionalFields: [
                   {
                     type: 'text',
@@ -99,7 +91,7 @@ export default function LoginPage() {
                 <p className="italic text-gray-200">
                     "This platform transformed my career. The live interaction is a game-changer compared to pre-recorded videos."
                 </p>
-                <p className="mt-4 font-semibold text-right">- Shrinivas Narhhare, Senior Developer</p>
+                <p className="mt-4 font-semibold text-right">- Alex Johnson, Senior Developer</p>
             </div>
         </div>
       </div>
