@@ -81,7 +81,7 @@ export default function LoginPage() {
                 <p className="italic text-gray-200">
                     "This platform transformed my career. The live interaction is a game-changer compared to pre-recorded videos."
                 </p>
-                <p className="mt-4 font-semibold text-right">- Alex Johnson, Senior Developer</p>
+                <p className="mt-4 font-semibold text-right">- Shrinivas Narhare, Senior Developer</p>
             </div>
         </div>
       </div>
