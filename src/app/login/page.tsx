@@ -24,7 +24,8 @@ export default function LoginPage() {
   
   const getURL = () => {
     let url = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000/';
-    url = url.includes('http') ? url : `https://`${url}`;
+    // THE FIX: Corrected the template literal syntax on this line
+    url = url.includes('http') ? url : `https://${url}`;
     url = url.charAt(url.length - 1) === '/' ? url : `${url}/`;
     return `${url}auth/callback`;
   };
@@ -56,7 +57,6 @@ export default function LoginPage() {
             redirectTo={getURL()}
             theme="dark"
             view="sign_up"
-            // This 'fields' property is the correct way to add the Full Name input
             fields={{
               sign_up: {
                 additionalFields: [
