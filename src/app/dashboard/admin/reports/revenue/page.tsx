@@ -21,22 +21,10 @@ export default async function RevenueReportPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
   if (profile?.role !== 'admin') redirect('/dashboard/student');
 
-  // Fetch all successful payments and related data
+  // THE FIX: Query the new, simple 'admin_revenue_report_view'
   const { data: payments, error } = await supabase
-    .from('payments')
-    .select(`
-      id,
-      amount_inr,
-      paid_at,
-      profiles ( full_name ),
-      enrollments (
-        batches (
-          name,
-          courses ( title )
-        )
-      )
-    `)
-    .eq('status', 'PAID')
+    .from('admin_revenue_report_view')
+    .select('*')
     .order('paid_at', { ascending: false });
 
   if (error) {
@@ -73,36 +61,11 @@ export default async function RevenueReportPage() {
               {payments && payments.length > 0 ? (
                 payments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell className="font-medium">{payment.profiles?.[0]?.full_name || 'N/A'}</TableCell>
+                    {/* THE FIX: Use the new, direct field names from the view */}
+                    <TableCell className="font-medium">{payment.full_name || 'N/A'}</TableCell>
                     <TableCell>
-                      <div>
-                        {payment.enrollments && payment.enrollments.length > 0
-                          ? payment.enrollments
-                              .flatMap(enrollment =>
-                                enrollment.batches && enrollment.batches.length > 0
-                                  ? enrollment.batches.flatMap(batch =>
-                                      batch.courses && batch.courses.length > 0
-                                        ? batch.courses.map(course => course.title)
-                                        : []
-                                    )
-                                  : []
-                              )
-                              .filter(Boolean)
-                              .join(', ')
-                          : 'N/A'}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {payment.enrollments && payment.enrollments.length > 0
-                          ? payment.enrollments
-                              .flatMap(enrollment =>
-                                enrollment.batches && enrollment.batches.length > 0
-                                  ? enrollment.batches.map(batch => batch.name)
-                                  : []
-                              )
-                              .filter(Boolean)
-                              .join(', ')
-                          : 'N/A'}
-                      </div>
+                      <div>{payment.course_title || 'N/A'}</div>
+                      <div className="text-sm text-muted-foreground">{payment.batch_name || 'N/A'}</div>
                     </TableCell>
                     <TableCell>
                       {new Date(payment.paid_at!).toLocaleDateString('en-IN', {
