@@ -24,7 +24,7 @@ export default function LoginPage() {
   
   const getURL = () => {
     let url = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000/';
-    url = url.includes('http') ? url : `https://${url}`;
+    url = url.includes('http') ? url : `https://`${url}`;
     url = url.charAt(url.length - 1) === '/' ? url : `${url}/`;
     return `${url}auth/callback`;
   };
@@ -56,8 +56,20 @@ export default function LoginPage() {
             redirectTo={getURL()}
             theme="dark"
             view="sign_up"
-            // Custom fields are not supported in the current version of @supabase/auth-ui-react.
-            // Remove the 'fields' prop to resolve the type error.
+            // This 'fields' property is the correct way to add the Full Name input
+            fields={{
+              sign_up: {
+                additionalFields: [
+                  {
+                    type: 'text',
+                    name: 'full_name',
+                    label: 'Your Full Name',
+                    placeholder: 'Enter your full name',
+                    required: true,
+                  },
+                ],
+              },
+            }}
           />
           <div className="mt-4 text-center text-sm">
             By signing in, you agree to our{' '}
