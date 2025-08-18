@@ -2,11 +2,11 @@
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import AuthForm from '@/components/AuthForm'; // Import our new custom form
+import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -22,12 +22,13 @@ export default function LoginPage() {
     return () => subscription.unsubscribe();
   }, [supabase, router]);
   
-  const getURL = () => {
-    let url = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000/';
-    // THE FIX: Corrected the template literal syntax on this line
-    url = url.includes('http') ? url : `https://${url}`;
-    url = url.charAt(url.length - 1) === '/' ? url : `${url}/`;
-    return `${url}auth/callback`;
+  const handleGoogleSignIn = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${location.origin}/auth/callback`,
+      },
+    });
   };
 
   return (
@@ -37,40 +38,29 @@ export default function LoginPage() {
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Get Started</h1>
             <p className="text-balance text-muted-foreground">
-              Create an account or sign in to access your learning dashboard
+              Enter your details below to create your account
             </p>
           </div>
-          <Auth
-            supabaseClient={supabase}
-            appearance={{ 
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: 'hsl(222.2 47.4% 11.2%)',
-                    brandAccent: 'hsl(222.2 84% 4.9%)',
-                  },
-                },
-              },
-            }}
-            providers={['google']}
-            redirectTo={getURL()}
-            theme="dark"
-            view="sign_up"
-            fields={{
-              sign_up: {
-                additionalFields: [
-                  {
-                    type: 'text',
-                    name: 'full_name',
-                    label: 'Your Full Name',
-                    placeholder: 'Enter your full name',
-                    required: true,
-                  },
-                ],
-              },
-            }}
-          />
+          
+          {/* Google Sign In Button */}
+          <Button variant="outline" onClick={handleGoogleSignIn}>
+            Sign Up with Google
+          </Button>
+          
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          {/* Our New Custom Form */}
+          <AuthForm />
+
           <div className="mt-4 text-center text-sm">
             By signing in, you agree to our{' '}
             <Link href="/terms" className="underline">
