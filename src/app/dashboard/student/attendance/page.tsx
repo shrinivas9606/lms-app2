@@ -18,29 +18,15 @@ export default async function AttendanceHistoryPage() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/login');
 
-  // Fetch all attendance records for the user, joining related tables
+  // THE FIX: Query the new, simple 'student_attendance_details' view
   const { data: attendanceRecords, error } = await supabase
-    .from('attendance')
-    .select(`
-      id,
-      status,
-      lectures (
-        title,
-        scheduled_at,
-        batches (
-          name,
-          courses (
-            title
-          )
-        )
-      )
-    `)
+    .from('student_attendance_details')
+    .select('*')
     .eq('user_id', session.user.id)
-    .order('lectures(scheduled_at)', { ascending: false }); // Show most recent first
+    .order('scheduled_at', { ascending: false }); // Show most recent first
 
   if (error) {
     console.error("Error fetching attendance:", error);
-    // You can add a more user-friendly error message here
   }
 
   return (
@@ -72,17 +58,14 @@ export default async function AttendanceHistoryPage() {
                 attendanceRecords.map((record) => (
                   <TableRow key={record.id}>
                     <TableCell>
-                      <div className="font-medium">
-                        {record.lectures?.[0]?.batches?.[0]?.courses?.[0]?.title || 'N/A'}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {record.lectures?.[0]?.batches?.[0]?.name || 'N/A'}
-                      </div>
+                      {/* THE FIX: Use the new, direct field names */}
+                      <div className="font-medium">{record.course_title}</div>
+                      <div className="text-sm text-muted-foreground">{record.batch_name}</div>
                     </TableCell>
-                    <TableCell>{record.lectures?.[0]?.title || 'N/A'}</TableCell>
+                    <TableCell>{record.lecture_title}</TableCell>
                     <TableCell>
-                      {record.lectures?.[0]?.scheduled_at 
-                        ? new Date(record.lectures[0].scheduled_at).toLocaleDateString('en-IN', {
+                      {record.scheduled_at 
+                        ? new Date(record.scheduled_at).toLocaleDateString('en-IN', {
                             year: 'numeric', month: 'long', day: 'numeric'
                           })
                         : 'N/A'}
