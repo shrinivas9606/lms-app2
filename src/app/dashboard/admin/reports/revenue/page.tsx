@@ -21,7 +21,7 @@ export default async function RevenueReportPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
   if (profile?.role !== 'admin') redirect('/dashboard/student');
 
-  // THE FIX: Query the new, simple 'admin_revenue_report_view'
+  // Query the new, simple 'admin_revenue_report_view'
   const { data: payments, error } = await supabase
     .from('admin_revenue_report_view')
     .select('*')
@@ -53,6 +53,7 @@ export default async function RevenueReportPage() {
               <TableRow>
                 <TableHead>Student</TableHead>
                 <TableHead>Course Details</TableHead>
+                <TableHead>Transaction ID</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Amount (INR)</TableHead>
               </TableRow>
@@ -61,12 +62,12 @@ export default async function RevenueReportPage() {
               {payments && payments.length > 0 ? (
                 payments.map((payment) => (
                   <TableRow key={payment.id}>
-                    {/* THE FIX: Use the new, direct field names from the view */}
                     <TableCell className="font-medium">{payment.full_name || 'N/A'}</TableCell>
                     <TableCell>
                       <div>{payment.course_title || 'N/A'}</div>
                       <div className="text-sm text-muted-foreground">{payment.batch_name || 'N/A'}</div>
                     </TableCell>
+                    <TableCell className="font-mono text-xs">{payment.payment_ref}</TableCell>
                     <TableCell>
                       {new Date(payment.paid_at!).toLocaleDateString('en-IN', {
                         day: 'numeric', month: 'long', year: 'numeric'
@@ -79,7 +80,7 @@ export default async function RevenueReportPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={5} className="h-24 text-center">
                     No payments found.
                   </TableCell>
                 </TableRow>
@@ -87,7 +88,7 @@ export default async function RevenueReportPage() {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={3} className="font-bold text-right">Total Revenue</TableCell>
+                <TableCell colSpan={4} className="font-bold text-right">Total Revenue</TableCell>
                 <TableCell className="font-bold text-right">
                   ₹{totalRevenue.toLocaleString('en-IN')}
                 </TableCell>
