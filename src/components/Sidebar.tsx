@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookCopy, BookOpen, BarChart, Users, Settings, LifeBuoy, CheckCircle } from "lucide-react";
+import { BookCopy, BookOpen, BarChart, Users, Settings, LifeBuoy, CheckCircle, MessageSquare } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 interface Profile {
@@ -68,6 +68,10 @@ export default function Sidebar({ user, profile }: SidebarProps) {
                 <NavLink href="/dashboard/admin/reports/revenue">
                   <BarChart className="h-4 w-4" />
                   Reports
+                </NavLink>
+                <NavLink href="/dashboard/admin/inquiries">
+                  <MessageSquare className="h-4 w-4" />
+                  Inquiries
                 </NavLink>
               </>
             ) : (
