@@ -22,8 +22,9 @@ const HeroSection = () => (
     <div className="container mx-auto grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
       <div className="flex flex-col justify-center space-y-4">
         <div className="space-y-2">
+          <p className="max-w-[600px] text-gray-300 md:text-xl">Welcome to the Future of AI Education</p>
           <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-            Welcome to the Future of Education
+            Master AI & ML with SuffixAI
           </h1>
           <p className="max-w-[600px] text-gray-300 md:text-xl">
             Transform your career with industry-standard education. Hands-on projects, expert mentors, and career support.
@@ -58,9 +59,9 @@ const AboutSection = () => (
     <div className="container mx-auto grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
       <div className="space-y-4">
         <div className="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm">About Us</div>
-        <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">My LMS Academy</h2>
+        <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Suffix AI Academy</h2>
         <p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-          We are a leading provider of online education, offering comprehensive courses designed to equip learners with the skills needed in today's evolving industries. Our expert instructors bring real-world experience and a passion for teaching.
+          SuffixAI is a leading provider of AI and ML education, offering comprehensive courses designed to equip learners with the skills needed to excel in the rapidly evolving field of artificial intelligence. Our expert instructors bring real-world experience and a passion for teaching, ensuring that students gain both theoretical knowledge and practical skills through hands-on projects and industry-relevant case studies.        
         </p>
       </div>
       <Image
