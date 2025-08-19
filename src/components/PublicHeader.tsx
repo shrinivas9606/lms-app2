@@ -9,7 +9,7 @@ export default function PublicHeader() {
       <nav className="container mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <BookCopy className="h-6 w-6 text-violet-600" />
-          <span className="text-lg font-bold">My LMS</span>
+          <span className="text-lg font-bold">Suffix AI</span>
         </Link>
         <div className="flex items-center gap-4">
           <Button variant="ghost" asChild>
