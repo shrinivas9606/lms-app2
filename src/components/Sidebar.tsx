@@ -35,7 +35,6 @@ export default function Sidebar({ user, profile }: SidebarProps) {
   const pathname = usePathname();
   const isAdmin = profile?.role === 'admin';
 
-  // Don't render the sidebar on the login page or the main landing page
   if (pathname === '/login' || pathname === '/') {
     return null;
   }
@@ -69,6 +68,7 @@ export default function Sidebar({ user, profile }: SidebarProps) {
                   <BarChart className="h-4 w-4" />
                   Reports
                 </NavLink>
+                {/* THE NEW LINK */}
                 <NavLink href="/dashboard/admin/inquiries">
                   <MessageSquare className="h-4 w-4" />
                   Inquiries
