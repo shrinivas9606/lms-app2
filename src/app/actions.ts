@@ -356,3 +356,21 @@ export async function deleteLecture(lectureId: string, batchId: string) {
   revalidatePath(`/dashboard/admin/batches/${batchId}/lectures`);
   return { message: 'Lecture deleted successfully.', success: true };
 }
+
+export async function submitContactForm(formData: FormData) {
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  const message = formData.get('message') as string;
+
+  // Here, you would typically send an email or save the inquiry to your database.
+  // For this example, we'll just log it to the server console.
+  console.log('New Contact Form Submission:');
+  console.log('Name:', name);
+  console.log('Email:', email);
+  console.log('Message:', message);
+
+  // You can redirect the user to a "thank you" page or just revalidate the path.
+  // For now, we don't need to do anything, but this is where that logic would go.
+  // redirect('/thank-you');
+}
+
