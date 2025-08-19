@@ -4,19 +4,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
-import NotificationBell from '@/components/NotificationBell';
-import LogoutButton from '@/components/LogoutButton';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { User as UserIcon } from "lucide-react";
+import Sidebar from "@/components/Sidebar";
+import Header from "@/components/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,66 +19,30 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // CORRECTED: createClient() is not asynchronous
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch the user's profile to get their avatar URL
   const { data: profile } = user 
-    ? await supabase.from('profiles').select('avatar_url').eq('id', user.id).single() 
+    ? await supabase.from('profiles').select('role, avatar_url, full_name').eq('id', user.id).single() 
     : { data: null };
 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <header className="p-4 border-b bg-white sticky top-0 z-50">
-          <nav className="container mx-auto flex justify-between items-center">
-            <Link href="/" className="font-bold text-lg text-violet-700">Suffix AI</Link>
-            
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <NotificationBell user={user} />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Avatar className="cursor-pointer h-9 w-9">
-                        <AvatarImage src={profile?.avatar_url ?? undefined} alt="User profile picture" />
-                        <AvatarFallback>
-                          <UserIcon className="h-5 w-5" />
-                        </AvatarFallback>
-                      </Avatar>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard">Dashboard</Link>
-                      </DropdownMenuItem>
-                      {/* You can add a profile settings page link here later */}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <LogoutButton />
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : (
-                // If not logged in, show a placeholder avatar that links to login
-                <Link href="/login">
-                  <div className="h-9 w-9 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer hover:bg-gray-300">
-                    <UserIcon className="h-5 w-5 text-gray-500" />
-                  </div>
-                </Link>
-              )}
-            </div>
-          </nav>
-        </header>
-        <main className="bg-gray-50/50">{children}</main>
+        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
+          {/* This line adds the sidebar to your application */}
+          <Sidebar user={user} profile={profile} />
+
+          {/* This is the main content area */}
+          <div className="flex flex-col">
+            <Header user={user} profile={profile} />
+            <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-gray-50/50">
+              {children}
+            </main>
+          </div>
+        </div>
         <Sonner />
       </body>
     </html>
   );
 }
-
-
-
