@@ -14,16 +14,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User as UserIcon } from "lucide-react";
+import { User as UserIcon, Menu } from "lucide-react";
+import { Button } from '@/components/ui/button';
 
+// We pass the setSheetOpen function from the layout to control the mobile sidebar
 interface HeaderProps {
   user: User | null;
   profile: { avatar_url: string | null; full_name: string | null; } | null;
+  setSheetOpen: (open: boolean) => void;
 }
 
-export default function Header({ user, profile }: HeaderProps) {
+export default function Header({ user, profile, setSheetOpen }: HeaderProps) {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-white px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
+        {/* Mobile Hamburger Menu Button */}
+        <Button
+          variant="outline"
+          size="icon"
+          className="shrink-0 lg:hidden"
+          onClick={() => setSheetOpen(true)}
+        >
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle navigation menu</span>
+        </Button>
+
         <div className="w-full flex-1">
             {/* You can add a search bar here later if you want */}
         </div>
