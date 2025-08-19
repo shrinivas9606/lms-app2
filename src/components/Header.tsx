@@ -2,7 +2,6 @@
 "use client"; 
 
 import Link from 'next/link';
-import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import NotificationBell from '@/components/NotificationBell';
 import LogoutButton from '@/components/LogoutButton';
@@ -23,13 +22,6 @@ interface HeaderProps {
 }
 
 export default function Header({ user, profile }: HeaderProps) {
-  const pathname = usePathname();
-
-  // Don't render the header on the login page or main landing page
-  if (pathname === '/login' || pathname === '/') {
-    return null;
-  }
-
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-white px-4 lg:h-[60px] lg:px-6 sticky top-0 z-30">
         <div className="w-full flex-1">

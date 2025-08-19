@@ -32,12 +32,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 }
 
 export default function Sidebar({ user, profile }: SidebarProps) {
-  const pathname = usePathname();
   const isAdmin = profile?.role === 'admin';
-
-  if (pathname === '/login' || pathname === '/') {
-    return null;
-  }
 
   return (
     <div className="hidden border-r bg-white lg:block">
@@ -68,7 +63,6 @@ export default function Sidebar({ user, profile }: SidebarProps) {
                   <BarChart className="h-4 w-4" />
                   Reports
                 </NavLink>
-                {/* THE NEW LINK */}
                 <NavLink href="/dashboard/admin/inquiries">
                   <MessageSquare className="h-4 w-4" />
                   Inquiries
