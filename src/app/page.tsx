@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { submitContactForm } from '@/app/actions';
+import Image from 'next/image';
 import {
   Card,
   CardHeader,
@@ -62,11 +63,13 @@ const AboutSection = () => (
           We are a leading provider of online education, offering comprehensive courses designed to equip learners with the skills needed in today's evolving industries. Our expert instructors bring real-world experience and a passion for teaching.
         </p>
       </div>
-      <img
-        alt="About"
+      <Image
+        alt="About Us Image"
         className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
         height="310"
-        src="https://placehold.co/550x310/6d28d9/ffffff?text=Our+Mission"
+        // The src path starts from the 'public' folder.
+        // Make sure you have an image named 'about-us.jpg' in your public folder.
+        src="/about-us.jpg" 
         width="550"
       />
     </div>
