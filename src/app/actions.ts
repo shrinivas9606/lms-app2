@@ -358,19 +358,34 @@ export async function deleteLecture(lectureId: string, batchId: string) {
 }
 
 export async function submitContactForm(formData: FormData) {
+  const supabase = await createClient();
+  
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const message = formData.get('message') as string;
 
-  // Here, you would typically send an email or save the inquiry to your database.
-  // For this example, we'll just log it to the server console.
-  console.log('New Contact Form Submission:');
-  console.log('Name:', name);
-  console.log('Email:', email);
-  console.log('Message:', message);
+  if (!name || !email || !message) {
+    // Handle error - maybe return a message to the user
+    console.error("Contact form submission is missing required fields.");
+    return;
+  }
 
-  // You can redirect the user to a "thank you" page or just revalidate the path.
-  // For now, we don't need to do anything, but this is where that logic would go.
+  // THE CHANGE: Insert the data into the new 'contact_inquiries' table
+  const { error } = await supabase
+    .from('contact_inquiries')
+    .insert({ name, email, message });
+
+  if (error) {
+    console.error("Error saving contact inquiry:", error);
+    // Handle the error appropriately, maybe return an error state
+  } else {
+    console.log('New contact form submission saved to database.');
+    // You could add a success message here if you modify the form to handle state
+  }
+
+  // Optional: Redirect to a "thank you" page after submission
+  // For now, we will just stay on the page.
   // redirect('/thank-you');
 }
+
 
