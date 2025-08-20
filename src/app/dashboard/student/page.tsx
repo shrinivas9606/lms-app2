@@ -15,7 +15,6 @@ export default async function StudentDashboard({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  // CORRECTED: createClient() is not asynchronous
   const supabase = await createClient();
 
   const { data: { session } } = await supabase.auth.getSession();
@@ -51,12 +50,15 @@ export default async function StudentDashboard({
 
   const batchIds = (enrollments ?? []).map((e) => e.batch_id);
 
+  // THE FIX: Look for lectures that started in the last 2 hours OR are in the future.
+  const twoHoursAgo = new Date(new Date().getTime() - 2 * 60 * 60 * 1000);
+
   const { data: upcomingLectures } = await supabase
     .from('lectures')
     .select('id, title, scheduled_at, stream_url, batches(platform)')
     .in('batch_id', batchIds)
-    .gte('scheduled_at', new Date().toISOString())
-    .order('scheduled_at', { ascending: true })
+    .gte('scheduled_at', twoHoursAgo.toISOString()) // Find lectures that are not too old
+    .order('scheduled_at', { ascending: true })   // Get the earliest one in this window
     .limit(1);
 
   const { count: attendanceCount } = await supabase
@@ -106,6 +108,7 @@ export default async function StudentDashboard({
                         {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
                       </p>
                     </div>
+                    {/* This logic will now correctly show the player for a session that has just started */}
                     {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
                       <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
                     ) : (
