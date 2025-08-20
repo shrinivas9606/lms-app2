@@ -52,7 +52,6 @@ export default async function StudentDashboard({
 
   const batchIds = (enrollments ?? []).map((e) => e.batch_id);
 
-  // Fetch the duration_min for the lecture
   const twoHoursAgo = new Date(new Date().getTime() - 2 * 60 * 60 * 1000);
 
   const { data: upcomingLectures } = await supabase
@@ -71,7 +70,6 @@ export default async function StudentDashboard({
 
   const nextLecture = upcomingLectures?.[0];
 
-  // More detailed logic to determine the session's state
   let sessionState = 'UPCOMING';
   if (nextLecture) {
     const now = new Date();
@@ -121,16 +119,21 @@ export default async function StudentDashboard({
                 {nextLecture ? (
                   <div className="space-y-4">
                     <div>
-                      <Badge variant="outline" className="border-violet-300 text-violet-700">{new Date(nextLecture.scheduled_at).toLocaleDateString('en-IN', { weekday: 'long' })}</Badge>
+                      <Badge variant="outline" className="border-violet-300 text-violet-700">{new Date(nextLecture.scheduled_at).toLocaleDateString('en-IN', { weekday: 'long', timeZone: 'Asia/Kolkata' })}</Badge>
                       <h3 className="text-2xl font-semibold mt-2 text-gray-900">{nextLecture.title}</h3>
                       <p className="text-gray-500">
                         {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
                       </p>
+                      {nextLecture.duration_min && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Duration: {nextLecture.duration_min} minutes
+                        </p>
+                      )}
                     </div>
                     
-                    {/* Use the new sessionState to render the correct UI */}
-                    {sessionState === 'LIVE' && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
-                      <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
+                    {/* THE FIX: Reintroduced the 'LIVE' state to show the LivePlayer */}
+                    {sessionState === 'LIVE' && nextLecture.batches?.platform && nextLecture.stream_url ? (
+                      <LivePlayer platform={nextLecture.batches.platform} streamUrl={nextLecture.stream_url} />
                     ) : sessionState === 'STARTING_SOON' ? (
                       <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-lg bg-green-50 border-green-200">
                           <p className="font-semibold text-green-700">Session is starting soon!</p>
