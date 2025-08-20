@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Clock, BookOpen, CheckCircle, ArrowRight } from 'lucide-react';
+import { Clock, BookOpen, CheckCircle, ArrowRight, Video } from 'lucide-react';
 import LivePlayer from '@/components/LivePlayer';
 import { StatCard } from '@/components/StatCard';
 import { Badge } from '@/components/ui/badge';
@@ -50,15 +50,14 @@ export default async function StudentDashboard({
 
   const batchIds = (enrollments ?? []).map((e) => e.batch_id);
 
-  // THE FIX: Look for lectures that started in the last 2 hours OR are in the future.
   const twoHoursAgo = new Date(new Date().getTime() - 2 * 60 * 60 * 1000);
 
   const { data: upcomingLectures } = await supabase
     .from('lectures')
     .select('id, title, scheduled_at, stream_url, batches(platform)')
     .in('batch_id', batchIds)
-    .gte('scheduled_at', twoHoursAgo.toISOString()) // Find lectures that are not too old
-    .order('scheduled_at', { ascending: true })   // Get the earliest one in this window
+    .gte('scheduled_at', twoHoursAgo.toISOString())
+    .order('scheduled_at', { ascending: true })
     .limit(1);
 
   const { count: attendanceCount } = await supabase
@@ -68,6 +67,21 @@ export default async function StudentDashboard({
     .eq('status', 'PRESENT');
 
   const nextLecture = upcomingLectures?.[0];
+
+  // --- NEW LOGIC TO DETERMINE SESSION STATE ---
+  let sessionState = 'UPCOMING';
+  if (nextLecture) {
+    const now = new Date();
+    const scheduledTime = new Date(nextLecture.scheduled_at);
+    const fiveMinutesBefore = new Date(scheduledTime.getTime() - 5 * 60 * 1000);
+
+    if (now >= scheduledTime) {
+      sessionState = 'LIVE';
+    } else if (now >= fiveMinutesBefore) {
+      sessionState = 'STARTING_SOON';
+    }
+  }
+  // --- END OF NEW LOGIC ---
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -108,9 +122,17 @@ export default async function StudentDashboard({
                         {new Date(nextLecture.scheduled_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })}
                       </p>
                     </div>
-                    {/* This logic will now correctly show the player for a session that has just started */}
-                    {new Date(nextLecture.scheduled_at) <= new Date() && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
-                      <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
+                    
+                    {/* THE FIX: Use the new sessionState to render the correct UI */}
+                    {sessionState === 'LIVE' && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
+                      <LivePlayer platform={nextLecture.batches?.[0]?.platform} streamUrl={nextLecture.stream_url} />
+                    ) : sessionState === 'STARTING_SOON' ? (
+                      <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-lg bg-green-50 border-green-200">
+                          <p className="font-semibold text-green-700">Session is starting soon!</p>
+                          <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white">
+                            <Video className="mr-2 h-4 w-4" /> Join Now
+                          </Button>
+                      </div>
                     ) : (
                       <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-gray-50">
                           <p className="text-gray-500">Session has not started yet.</p>
