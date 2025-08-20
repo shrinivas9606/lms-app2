@@ -10,6 +10,9 @@ import { StatCard } from '@/components/StatCard';
 import { Badge } from '@/components/ui/badge';
 import EnrollmentRefresher from '@/components/EnrollmentRefresher';
 
+// THE FIX: This line forces the page to be rendered dynamically on every request.
+export const dynamic = 'force-dynamic';
+
 export default async function StudentDashboard({
   searchParams,
 }: {
@@ -68,7 +71,6 @@ export default async function StudentDashboard({
 
   const nextLecture = upcomingLectures?.[0];
 
-  // --- NEW LOGIC TO DETERMINE SESSION STATE ---
   let sessionState = 'UPCOMING';
   if (nextLecture) {
     const now = new Date();
@@ -81,7 +83,6 @@ export default async function StudentDashboard({
       sessionState = 'STARTING_SOON';
     }
   }
-  // --- END OF NEW LOGIC ---
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -123,9 +124,8 @@ export default async function StudentDashboard({
                       </p>
                     </div>
                     
-                    {/* THE FIX: Use the new sessionState to render the correct UI */}
-                    {sessionState === 'LIVE' && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
-                      <LivePlayer platform={nextLecture.batches?.[0]?.platform} streamUrl={nextLecture.stream_url} />
+                    {sessionState === 'LIVE' && nextLecture.batches?.platform && nextLecture.stream_url ? (
+                      <LivePlayer platform={nextLecture.batches.platform} streamUrl={nextLecture.stream_url} />
                     ) : sessionState === 'STARTING_SOON' ? (
                       <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-lg bg-green-50 border-green-200">
                           <p className="font-semibold text-green-700">Session is starting soon!</p>
