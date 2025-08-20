@@ -10,7 +10,6 @@ import { StatCard } from '@/components/StatCard';
 import { Badge } from '@/components/ui/badge';
 import EnrollmentRefresher from '@/components/EnrollmentRefresher';
 
-// THE FIX: This line forces the page to be rendered dynamically on every request.
 export const dynamic = 'force-dynamic';
 
 export default async function StudentDashboard({
@@ -53,11 +52,12 @@ export default async function StudentDashboard({
 
   const batchIds = (enrollments ?? []).map((e) => e.batch_id);
 
+  // Fetch the duration_min for the lecture
   const twoHoursAgo = new Date(new Date().getTime() - 2 * 60 * 60 * 1000);
 
   const { data: upcomingLectures } = await supabase
     .from('lectures')
-    .select('id, title, scheduled_at, stream_url, batches(platform)')
+    .select('id, title, scheduled_at, duration_min, stream_url, batches(platform)')
     .in('batch_id', batchIds)
     .gte('scheduled_at', twoHoursAgo.toISOString())
     .order('scheduled_at', { ascending: true })
@@ -71,14 +71,18 @@ export default async function StudentDashboard({
 
   const nextLecture = upcomingLectures?.[0];
 
+  // More detailed logic to determine the session's state
   let sessionState = 'UPCOMING';
   if (nextLecture) {
     const now = new Date();
     const scheduledTime = new Date(nextLecture.scheduled_at);
+    const endTime = new Date(scheduledTime.getTime() + (nextLecture.duration_min || 0) * 60 * 1000);
     const fiveMinutesBefore = new Date(scheduledTime.getTime() - 5 * 60 * 1000);
 
-    if (now >= scheduledTime) {
+    if (now >= scheduledTime && now <= endTime) {
       sessionState = 'LIVE';
+    } else if (now > endTime) {
+      sessionState = 'ENDED';
     } else if (now >= fiveMinutesBefore) {
       sessionState = 'STARTING_SOON';
     }
@@ -124,14 +128,19 @@ export default async function StudentDashboard({
                       </p>
                     </div>
                     
-                    {sessionState === 'LIVE' && nextLecture.batches?.platform && nextLecture.stream_url ? (
-                      <LivePlayer platform={nextLecture.batches.platform} streamUrl={nextLecture.stream_url} />
+                    {/* Use the new sessionState to render the correct UI */}
+                    {sessionState === 'LIVE' && nextLecture.batches?.[0]?.platform && nextLecture.stream_url ? (
+                      <LivePlayer platform={nextLecture.batches[0].platform} streamUrl={nextLecture.stream_url} />
                     ) : sessionState === 'STARTING_SOON' ? (
                       <div className="flex flex-col items-center justify-center h-40 border-2 border-dashed rounded-lg bg-green-50 border-green-200">
                           <p className="font-semibold text-green-700">Session is starting soon!</p>
                           <Button className="mt-4 bg-green-600 hover:bg-green-700 text-white">
                             <Video className="mr-2 h-4 w-4" /> Join Now
                           </Button>
+                      </div>
+                    ) : sessionState === 'ENDED' ? (
+                      <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-gray-50">
+                          <p className="text-gray-500">This session has ended.</p>
                       </div>
                     ) : (
                       <div className="flex items-center justify-center h-40 border-2 border-dashed rounded-lg bg-gray-50">
