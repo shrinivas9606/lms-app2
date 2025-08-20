@@ -1,13 +1,12 @@
 // src/app/dashboard/layout.tsx
-"use client"; // This layout now needs to be a client component to manage state
+"use client"; 
 
 import { useState, useEffect } from 'react';
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
-import { createClient } from '@/lib/supabase/client'; // Use the client-side client
+import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-// Define a type for the profile data
 interface Profile {
   role: string | null;
   avatar_url: string | null;
@@ -44,10 +43,13 @@ export default function DashboardLayout({
   return (
     <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
       <Sidebar user={user} profile={profile} isSheetOpen={isSheetOpen} setSheetOpen={setSheetOpen} />
-      <div className="flex flex-col">
+      
+      {/* THE FIX: This container is now constrained to the screen height */}
+      <div className="flex flex-col h-screen overflow-hidden">
         <Header user={user} profile={profile} setSheetOpen={setSheetOpen} />
-        {/* THE FIX: Main content area is now scrollable */}
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-gray-50/50 overflow-y-auto">
+        
+        {/* The main content area will now scroll independently */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-gray-50/50">
           {children}
         </main>
       </div>
