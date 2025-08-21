@@ -30,7 +30,7 @@ const HeroSection = () => {
       title: "AI Blockchain Course",
       duration: "45 Days",
       faculty: "Prof. Nishant Chinchole",
-      image: "/suffix ai block chain course.jpg"
+      image: "/suffix ai blockchain course.jpg"
     },
     {
       title: "AI Mastry Course",
