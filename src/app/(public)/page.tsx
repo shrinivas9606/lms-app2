@@ -27,16 +27,16 @@ const HeroSection = () => {
       image: "/suffix ai fulency course.jpg" // Make sure this image is in your /public folder
     },
     {
-      title: "Advanced Machine Learning",
-      duration: "60 Days",
-      faculty: "Dr. Jane Doe",
-      image: "https://placehold.co/600x338/111827/ffffff?text=ML+Course"
+      title: "AI Blockchain Course",
+      duration: "45 Days",
+      faculty: "Prof. Nishant Chinchole",
+      image: "/suffix ai block chain course.jpg"
     },
     {
-      title: "Data Science with Python",
-      duration: "50 Days",
-      faculty: "John Smith",
-      image: "https://placehold.co/600x338/111827/ffffff?text=Data+Science"
+      title: "AI Mastry Course",
+      duration: "90 Days",
+      faculty: "Prof. Gajanan Sawdtakar",
+      image: "/suffix ai mastry course.jpg"
     }
   ];
 
