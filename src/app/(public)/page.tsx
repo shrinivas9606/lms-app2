@@ -83,7 +83,7 @@ const HeroSection = () => {
                   </CardHeader>
                   <CardFooter className="mt-auto">
                     {/* THE FIX: The text color on hover is now explicitly set */}
-                    <Button variant="outline" className="w-full text-white border-white hover:bg-white hover:text-black">Enroll Now</Button>
+                    <Button variant="outline" className="w-full text-black border-white hover:bg-white hover:text-purple-600">Enroll Now</Button>
                   </CardFooter>
                 </Card>
               </div>
